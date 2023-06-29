@@ -18,6 +18,7 @@ task statistics.
   - [[#functions][Functions]]  
   - [[#variables][Variables]]
   - [[#examples][Examples]]
+- [[#todos][TODOs]]
 * Screenshots
 :PROPERTIES:
 :TOC:      0
@@ -146,3 +147,8 @@ Eval the following code:
 Next, you can perform the following steps:
 1. Open an agenda buffer, you will see three habits.
 2. Try above functions.
+* TODOs
+- [ ] Speed up database writes
+- [ ] Record more data
+- [ ] Support for more complex database operations
+- [ ] Support for more data display modes
