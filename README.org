@@ -24,12 +24,15 @@ task statistics.
 :TOC:      0
 :END:
 Show habit completion overview in org agenda buffer.
+
 [[images/screenshots/org-heatmap-habit-overview.gif]]
 
 Display habit heatmap in Calendar
+
 [[images/screenshots/org-heatmap-habit-calendar.gif]]
 
-Add habit statistics after habits.
+Add habit statistics after habits: (current streak, max streak and total done number).
+
 [[images/screenshots/habit-statistics.png]]
 * Installation
 :PROPERTIES:
@@ -88,11 +91,17 @@ lag (the lag time depends on the length of your habits record).
 
   Add highlights indicating the times spent on the habit on the current calendar
   date.
+
+  Whenever you complete a habit (when a item is changed to DONE in org-mode.),
+  org-heatmap will record the time you spent on this habit today and write it to
+  the database. You can use this command to generate a heatmap of your
+  everyday time spent, and use built-in functions such as =org-calendar-goto-agenda=
+  to see details.
   
 - =org-heatmap-calendar-query=
   
   In =Calendar-mode= with org-heatmap highlights, you can use this function (bound
-  to =f=) to get information about the activities on the current calendar date.
+  to =f= in =calendar-mode=) to get information about the activities on the current calendar date.
 
   When used with =org-heatmap-calendar=, it shows how many items are done on the
   current calendar date.
@@ -103,7 +112,7 @@ lag (the lag time depends on the length of your habits record).
 - =org-heatmap-adjust=
 
   Change the number of done items on the current calendar date, used with
-  =org-heatmap-calendar=
+  =org-heatmap-calendar= (bound to =j= in =calendar-mdoe=).
   
   *Note* that this function is not applied to =org-heatmap-habit-calendar= for now.
 - =org-heatmap-db--drop=
@@ -120,6 +129,9 @@ lag (the lag time depends on the length of your habits record).
 - =org-heatmap-enable-habit-statics=
   
   Whether to shoaw habit statics.
+
+  Add three data after the habit entry: (current streak, max streak and total
+  done number).
 
   *Note*: If you want to chage this variable, please set it before loading
   org-heatmap or use =setopt=.
@@ -149,6 +161,7 @@ Next, you can perform the following steps:
 2. Try above functions.
 * TODOs
 - [ ] Speed up database writes
+- [ ] Add project management
 - [ ] Record more data
 - [ ] Support for more complex database operations
 - [ ] Support for more data display modes

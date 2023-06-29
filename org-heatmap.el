@@ -48,6 +48,9 @@
 (defcustom org-heatmap-enable-habit-statics t
   "Whether to shoaw habit statics.
 
+Add three data after the habit entry: (current streak, max streak
+  and total done number).
+
 *Note*: If you want to chage this variable, please set it before
 loading org-heatmap or use `setopt'."
   :group 'org-heatmap
