@@ -9,6 +9,7 @@
 
 (require 'calendar)
 (require 'org-habit)
+(require 'org-clock)
 (require 'emacsql-sqlite-builtin)
 
 (defface org-heatmap-habit-statics '((t (:foreground "#B0BEC5"))) "")
