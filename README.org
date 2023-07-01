@@ -68,8 +68,9 @@ lag (the lag time depends on the length of your habits record).
   heatmap for the habit. Call this function or press =h= again will erase the
   heatmap.
 
-  You can hover your mouse over a rectangle and then click, this will redirect
-  you to an agenda view of that day.
+  You can hover your mouse over a rectangle, and you will see the time you spent
+  on the habit on that day. Clicking the rectangle will redirect you to an
+  agenda view of that day.
 
 
   *Note*: This function uses =org-heatmap-rectangle= to draw heatmap, and for
