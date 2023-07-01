@@ -68,6 +68,10 @@ lag (the lag time depends on the length of your habits record).
   heatmap for the habit. Call this function or press =h= again will erase the
   heatmap.
 
+  You can hover your mouse over a rectangle and then click, this will redirect
+  you to an agenda view of that day.
+
+
   *Note*: This function uses =org-heatmap-rectangle= to draw heatmap, and for
   different fonts, the display effect may vary. The font used in the screenshots
   is =Cascadia Mono=. You can choose suitable characters based on the font you are
