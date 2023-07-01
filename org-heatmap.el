@@ -361,8 +361,19 @@ Return a list of all the past dates this todo was mark closed."
 					(cl-find-if (lambda (pair)
 								  (>= (cadr day) (car pair)))
 								(reverse (alist-get 'overview org-heatmap-threshold)))))
-			 (beg (+ (point) (* (/ day-num 30) 90) (* 3 (1- (% day-num 30))))))
-		(put-text-property beg (+ beg (length org-heatmap-rectangle)) 'face face (current-buffer))))))
+			 (beg (+ (point) (* (/ day-num 30) 90) (* 3 (1- (% day-num 30)))))
+			 (end (+ beg (length org-heatmap-rectangle))))
+		(put-text-property beg end 'face face (current-buffer))
+		(make-button beg end
+					 'help-echo (format "%d minutes are spent on %s" (cadr day )
+										(org-heatmap-time-format (car day)))
+					 'face face
+					 'action
+					 (lambda (_)
+					   (let ((org-agenda-sticky nil))
+						 (org-agenda-list nil (calendar-absolute-from-gregorian
+											   (car day))
+										  nil))))))))
 ;;;; habit statics
 (defun org-heatmap-habit-parse-todo-advice (orig &rest args)
   (let ((org-habit-preceding-days 99999)
