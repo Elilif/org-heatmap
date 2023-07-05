@@ -293,11 +293,8 @@ stored in the database, else return nil."
   "Get current habit name."
   (cond
    ((eq major-mode 'org-agenda-mode)
-	(save-excursion
-	  (beginning-of-line)
-	  (let ((todo-state (get-text-property (point) 'todo-state))
-			(txt (get-text-property (point) 'txt)))
-		(substring-no-properties txt (1+ (length todo-state))))))
+	(org-with-point-at (org-get-at-bol 'org-hd-marker)
+      (nth 4 (org-heading-components))))
    (t (nth 4 (org-heading-components)))))
 
 (defun org-heatmap-habit-parse-todo ()
@@ -425,15 +422,18 @@ Return a list of all the past dates this todo was mark closed."
 		  (when (overlay-get ov 'after-string)
 			(delete-overlay ov)))
 		(overlays-in (point-min) (point-max)))
-  (let ((buffer-invisibility-spec '(org-link)))
+  (let ((buffer-invisibility-spec '(org-link))
+		(inhibit-read-only t))
     (save-excursion
 	  (goto-char (point-min))
 	  (while (not (eobp))
 	    (when-let ((habit (get-text-property (point) 'org-habit-p))
-				   (pos (save-excursion
-						  (search-forward (get-text-property (point) 'txt))))
-				   (ov (make-overlay (1- pos) pos)))
-		  (overlay-put ov 'after-string (org-heatmap-habit-streaks habit)))
+				   (pos (search-forward (org-heatmap--hd-name)))
+				   (ov (make-overlay (1- pos) pos))
+				   (streak (org-heatmap-habit-streaks habit)))
+		  (when (org-get-at-bol 'tags)
+			(delete-char (length streak)))
+		  (overlay-put ov 'after-string streak))
 	    (forward-line)))))
 
 (when org-heatmap-enable-habit-statics
