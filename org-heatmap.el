@@ -416,12 +416,16 @@ Return a list of all the past dates this todo was mark closed."
                         (number-to-string sum) ")")
                 'face 'mindre-faded)))
 
-(defun org-heatmap-habit-add-streak ()
-  "Insert consistency graph for any habitual tasks."
+(defun org-heatmap-habit-clean-ov ()
+  "Clear all habit streak overlays in org agenda buffer."
   (mapc (lambda (ov)
 		  (when (overlay-get ov 'after-string)
 			(delete-overlay ov)))
-		(overlays-in (point-min) (point-max)))
+		(overlays-in (point-min) (point-max))))
+
+(defun org-heatmap-habit-add-streak ()
+  "Insert consistency graph for any habitual tasks."
+  (org-heatmap-habit-clean-ov)
   (let ((buffer-invisibility-spec '(org-link))
 		(inhibit-read-only t))
     (save-excursion
@@ -435,10 +439,6 @@ Return a list of all the past dates this todo was mark closed."
 			(delete-char (length streak)))
 		  (overlay-put ov 'after-string streak))
 	    (forward-line)))))
-
-(when org-heatmap-enable-habit-statics
-  (advice-add 'org-habit-parse-todo :around #'org-heatmap-habit-parse-todo-advice)
-  (add-hook 'org-agenda-finalize-hook #'org-heatmap-habit-add-streak))
 
 ;;;; interactive functions
 
@@ -557,15 +557,22 @@ for now."
 	(add-hook 'org-after-todo-state-change-hook #'org-heatmap-update-counter)
 	(keymap-set calendar-mode-map "j" #'org-heatmap-adjust)
 	(keymap-set calendar-mode-map "f" #'org-heatmap-calendar-query)
+	(when org-heatmap-enable-habit-statics
+	  (advice-add 'org-habit-parse-todo :around #'org-heatmap-habit-parse-todo-advice)
+	  (add-hook 'org-agenda-finalize-hook #'org-heatmap-habit-add-streak))
 	(with-eval-after-load 'org-agenda
 	  (org-defkey org-agenda-mode-map "h" #'org-heatmap-habit-draw-overview)))
    (t
 	(org-heatmap-db--close)
 	(advice-remove #'calendar-exit #'org-heatmap-clear)
 	(advice-remove #'calendar-generate-month #'org-heatmap-generate)
+	(advice-remove #'org-habit-parse-todo #'org-heatmap-habit-parse-todo-advice)
 	(remove-hook 'org-after-todo-state-change-hook #'org-heatmap-update-counter)
 	(remove-hook 'kill-emacs-hook #'org-heatmap-db--close)
-        (remove-hook 'org-agenda-finalize-hook #'org-heatmap-habit-add-streak)
+    (remove-hook 'org-agenda-finalize-hook #'org-heatmap-habit-add-streak)
+	(when (eq major-mode 'org-agenda-mode)
+	  (org-heatmap-habit-clean-ov)
+	  (org-agenda-redo 'all))
 	(keymap-set calendar-mode-map "j" nil)
 	(keymap-set calendar-mode-map "f" nil)
 	(org-defkey org-agenda-mode-map "h" #'org-agenda-holidays))))
