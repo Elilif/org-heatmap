@@ -565,6 +565,7 @@ for now."
 	(advice-remove #'calendar-generate-month #'org-heatmap-generate)
 	(remove-hook 'org-after-todo-state-change-hook #'org-heatmap-update-counter)
 	(remove-hook 'kill-emacs-hook #'org-heatmap-db--close)
+        (remove-hook 'org-agenda-finalize-hook #'org-heatmap-habit-add-streak)
 	(keymap-set calendar-mode-map "j" nil)
 	(keymap-set calendar-mode-map "f" nil)
 	(org-defkey org-agenda-mode-map "h" #'org-agenda-holidays))))
