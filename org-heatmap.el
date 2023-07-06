@@ -10,7 +10,10 @@
 (require 'calendar)
 (require 'org-habit)
 (require 'org-clock)
-(require 'emacsql-sqlite-builtin)
+(eval-when-compile
+  (if (require 'sqlite nil t)
+	  (require 'emacsql-sqlite-builtin)
+	(require 'emacsql-sqlite)))
 
 (defface org-heatmap-habit-statics '((t (:foreground "#B0BEC5"))) "")
 
@@ -45,6 +48,24 @@
 (defgroup org-heatmap nil
   "Settings for `org-heatmap'."
   :group 'org)
+
+(defcustom org-heatmap-database-connector (if (and (progn
+													 (require 'emacsql-sqlite-builtin nil t)
+													 (functionp 'emacsql-sqlite-builtin))
+                                                   (functionp 'sqlite-open))
+											  'sqlite-builtin
+											'sqlite)
+  "The database connector used by org-heatmap.
+
+If you are using Emacs 29, then the recommended connector is
+`sqlite-builtin', which uses the new builtin support for SQLite.
+You need to install the `emacsql-sqlite-builtin' package to use
+this connector.
+If you are using an older Emacs release, please `sqlite'"
+  :group 'org-heatmap
+  :type '(choice 
+          (const sqlite-builtin)
+          (const sqlite)))
 
 (defcustom org-heatmap-enable-habit-statics t
   "Whether to shoaw habit statics.
@@ -102,6 +123,20 @@ loading org-heatmap or use `setopt'."
   "Hash table used to store current streak.")
 
 ;;;; database
+;;; the code in this section is mainly learned from org-roam.
+
+(declare-function emacsql-sqlite "ext:emacsql-sqlite")
+(declare-function emacsql-sqlite-builtin "ext:emacsql-sqlite-builtin")
+(defun org-heatmap-db--conn-fn ()
+  "Return the function for creating the database connection."
+  (cl-case org-heatmap-database-connector
+	(sqlite-builtin
+	 (require 'emacsql-sqlite-builtin)
+	 #'emacsql-sqlite-builtin)
+	(sqlite
+	 (require 'emacsql-sqlite)
+	 #'emacsql-sqlite)))
+
 (defvar org-heatmap--db nil
   "Current connected org-heatmap database.")
 
@@ -128,7 +163,7 @@ the current `org-heatmap-db-location'."
 			   (emacsql-live-p org-heatmap--db))
 	(let ((init-db (not (file-exists-p org-heatmap-db-location))))
 	  (make-directory (file-name-directory org-heatmap-db-location) t)
-	  (let ((conn (emacsql-sqlite-builtin org-heatmap-db-location)))
+	  (let ((conn (funcall (org-heatmap-db--conn-fn) org-heatmap-db-location)))
 		(emacsql conn [:pragma (= foreign_keys ON)])
 		(when-let* ((process (emacsql-process conn))
                     ((processp process)))
@@ -326,7 +361,7 @@ Return a list of all the past dates this todo was mark closed."
 		  (setq closed-dates (org-heatmap-habit-parse-todo))
 		  (org-narrow-to-subtree)
 		  (org-heatmap-db--init (or org-heatmap--db
-									(emacsql-sqlite-builtin org-heatmap-db-location))
+									(funcall (org-heatmap-db--conn-fn) org-heatmap-db-location))
 								hd-name)
 		  (dolist (closed-date closed-dates) 
 			(let ((date (calendar-gregorian-from-absolute closed-date)))
@@ -555,8 +590,8 @@ for now."
 	(advice-add #'calendar-generate-month :after #'org-heatmap-generate)
 	(add-hook 'kill-emacs-hook #'org-heatmap-db--close)
 	(add-hook 'org-after-todo-state-change-hook #'org-heatmap-update-counter)
-	(keymap-set calendar-mode-map "j" #'org-heatmap-adjust)
-	(keymap-set calendar-mode-map "f" #'org-heatmap-calendar-query)
+	(define-key calendar-mode-map (kbd "j") #'org-heatmap-adjust)
+	(define-key calendar-mode-map (kbd "f") #'org-heatmap-calendar-query)
 	(when org-heatmap-enable-habit-statics
 	  (advice-add 'org-habit-parse-todo :around #'org-heatmap-habit-parse-todo-advice)
 	  (add-hook 'org-agenda-finalize-hook #'org-heatmap-habit-add-streak))
@@ -573,8 +608,8 @@ for now."
 	(when (eq major-mode 'org-agenda-mode)
 	  (org-heatmap-habit-clean-ov)
 	  (org-agenda-redo 'all))
-	(keymap-set calendar-mode-map "j" nil)
-	(keymap-set calendar-mode-map "f" nil)
+	(define-key calendar-mode-map (kbd "j") nil)
+	(define-key calendar-mode-map (kbd "f") nil)
 	(org-defkey org-agenda-mode-map "h" #'org-agenda-holidays))))
 
 (provide 'org-heatmap)
