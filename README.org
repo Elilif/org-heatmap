@@ -48,10 +48,25 @@ ps. I have not tested in the lower versions of the mentioned packages.
 
 Then put org-heatmap.el in your load-path, and eval:
 #+begin_src emacs-lisp
-  (require 'org-heatmap)
-  (org-heatmap-mode)
-#+end_src
+  (use-package org-habit
+	:custom
+	(org-habit-graph-column 1)
+	(org-habit-preceding-days 10)
+	(org-habit-following-days 1)
+	(org-habit-show-habits-only-for-today nil))
 
+  (use-package org-heatmap
+	:init
+	(add-to-list 'load-path "/path-to/emacsql/")
+	(add-to-list 'load-path "/path-to/org-heatmap/")
+	(require 'org-heatmap)
+	:after (org)
+	:custom
+	(org-agenda-files '("/path-to/org-heatmap/examples/examples.org"))
+	(org-heatmap-db-location "/path-to/org-heatmap/examples/org-heatmap.db")
+	:config
+	(org-heatmap-mode))
+#+end_src
 * Usage
 :PROPERTIES:
 :TOC:      1
@@ -148,22 +163,6 @@ lag (the lag time depends on the length of your habits record).
 - =org-heatmap-db-location=
 
   Default database location.
-** Examples
-Eval the following code:
-#+begin_src emacs-lisp
-  (setq org-agenda-files '("/path-to/org-heatmap/examples/examples.org")) ;; You need specify these two paths.
-  (setq org-heatmap-db-location "/path-to/org-heatmap/examples/org-heatmap.db")
-  (org-heatmap-mode)
-  (with-eval-after-load 'org-habit
-	(setq org-habit-graph-column 1
-		  org-habit-preceding-days 10
-		  org-habit-following-days 1
-		  org-habit-show-habits-only-for-today nil))
-#+end_src
-
-Next, you can perform the following steps:
-1. Open an agenda buffer, you will see three habits.
-2. Try above functions.
 * TODOs
 - [ ] Speed up database writes
 - [ ] Add project management
