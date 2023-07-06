@@ -3,7 +3,7 @@
 ;; Author: Eli Qian <eli.q.qian@gmail.com>
 ;; Url: https://github.com/Elilif/.elemacs
 ;; Version: 0.1
-;; Package-Requires: ((emacs "28.2") (org "9.6") (emacsql "3.1.1"))
+;; Package-Requires: ((emacs "28.2") (org "9.6") (emacsql "20230220"))
 ;; Keywords: Calendar, Org, Habits
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
