@@ -449,7 +449,7 @@ Return a list of all the past dates this todo was mark closed."
                         (number-to-string max-streaks)
                         "/"
                         (number-to-string sum) ")")
-                'face 'mindre-faded)))
+                'face 'org-heatmap-habit-statics)))
 
 (defun org-heatmap-habit-clean-ov ()
   "Clear all habit streak overlays in org agenda buffer."
